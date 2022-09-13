@@ -1,13 +1,12 @@
 import { Response, Request } from 'express';
 import { Product } from '../global/interfaces/Product.interface';
-// import { Product } from '../global/interfaces/Product.interface';
 import { networkError, networkSuccess, serverError } from '../middlewares/response.middleware';
-// import CategoryModel from '../models/Category.model';
 import ProductModel from '../models/Product.model';
+import slug from 'slug';
 
 const getAll = async (_: Request, res: Response) => {
 	try {
-		const products = await ProductModel.find().populate('category', 'name').populate('brand', 'name');
+		const products = await ProductModel.find();
 		networkSuccess({res, status: 201, message: 'Lista de productos', data: products})
 	} catch (error) {
 		serverError({res, message: 'Ha ocurrido un error', error});
@@ -16,26 +15,22 @@ const getAll = async (_: Request, res: Response) => {
 
 const create = async (req: Request, res: Response) => {
 	try {
-		// // PARTE 1
-		// await category.forEach( async (catId) => {
-		// 	const category = await CategoryModel.findById(catId);
-			
-		// 	if(category){
-		// 		categoriesFinded = categoriesFinded + 1
-		// 	}
-		// });
-		
-		// console.log({categoriesFinded, tamano: category.length});
-		// if(categoriesFinded === category.length){
-		// 	const product = new ProductModel(req.body);
-		// 	await product.save();
-			
-		// 	networkSuccess({res, status: 201, message: 'Producto creado correctamente', data: product})
-		// }else {
-		// 	networkError({res, status: 404, message: 'No todas las categorias han sido encontradas'});
-		// }
+		const { name , category, brand } = req.body;
 
-		const product = new ProductModel(req.body);
+		const productData : Product = {
+			name,
+			category : {
+				name : category,
+				slug : slug(category)
+			},
+			brand : {
+				name : brand,
+				slug : slug(brand)
+			},
+			status : true,
+			slug : slug(name)
+		}
+		const product = new ProductModel(productData);
 		await product.save();
 		
 		networkSuccess({res, status: 201, message: 'Producto creado correctamente', data: product})
@@ -49,7 +44,7 @@ const create = async (req: Request, res: Response) => {
 const getById = async (req: Request, res: Response) => {
 	try {
 		const { id } = req.params;
-		const product = await ProductModel.findById(id).populate('category', 'name').populate('brand', 'name');
+		const product = await ProductModel.findById(id);
 
 		return product ? networkSuccess({res, message: 'Producto encontrado', data: product}) : 
 		networkError({res, status: 404, message: 'Producto no encontrado o no existe'})
