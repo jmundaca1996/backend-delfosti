@@ -1,7 +1,7 @@
 {
-  "name": "proyectominimarket",
+  "name": "proyectodelfosti",
   "version": "0.0.1",
-  "description": "Proyecto minimarket EnotriaSA",
+  "description": "Proyecto Delfosti",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
